@@ -38,7 +38,7 @@ def save_transaction(transaction):
     conn.close()
 
 def delete_transaction(row_id):
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = get_connection()
     cur = conn.cursor()
     cur.execute("DELETE FROM transactions WHERE id = %s", (row_id,))
     conn.commit()

@@ -1,21 +1,71 @@
 import os
+from dotenv import load_dotenv
 import pandas as pd
-from sqlalchemy import create_engine
+import psycopg2
 
-DATABASE_URL = os.getenv("DATABASE_URL")  # Defina isso nos secrets do Streamlit Cloud ou .env local
+load_dotenv()  # Loads variables from .env
 
-def get_engine():
-    return create_engine(DATABASE_URL)
+USER = os.getenv("user")
+PASSWORD = os.getenv("password")
+HOST = os.getenv("host")
+PORT = os.getenv("port")
+DBNAME = os.getenv("dbname")
+
+def get_connection():
+    return psycopg2.connect(
+        user=USER,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT,
+        dbname=DBNAME
+    )
 
 def load_transactions():
-    engine = get_engine()
-    try:
-        return pd.read_sql("SELECT * FROM transacoes", engine)
-    except Exception:
-        # Se a tabela não existir, retorna DataFrame vazio
-        return pd.DataFrame(columns=["id", "tipo", "data", "valor", "descricao", "empresa"])
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM transactions", conn)
+    conn.close()
+    return df
 
 def save_transaction(transaction):
-    engine = get_engine()
-    df = pd.DataFrame([transaction])
-    df.to_sql("transacoes", engine, if_exists="append", index=False)
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO transactions (tipo, data, valor, descricao, empresa) VALUES (%s, %s, %s, %s, %s)",
+        (transaction['tipo'], transaction['data'], transaction['valor'], transaction['descricao'], transaction['empresa'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def delete_transaction(row_id):
+    conn = psycopg2.connect(DATABASE_URL)
+    cur = conn.cursor()
+    cur.execute("DELETE FROM transactions WHERE id = %s", (row_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def load_empresas():
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM empresas", conn)
+    conn.close()
+    return df
+
+def save_empresa(empresa):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO empresas (nome, chave, data_cadastro, trial_expira_em, email, senha) VALUES (%s, %s, %s, %s, %s, %s)",
+        (empresa['nome'], empresa['chave'], empresa['data_cadastro'], empresa['trial_expira_em'], empresa['email'], empresa['senha'])
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+# Testando a conexão
+try:
+    conn = get_connection()
+    print("Conexão OK!")
+    conn.close()
+except Exception as e:
+    print(f"Erro na conexão: {e}")

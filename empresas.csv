@@ -2,3 +2,7 @@ id,nome,chave,data_cadastro,trial_expira_em,email,senha
 1,teste,123456,2025-07-24,2025-08-08,,
 2,TESTE,b5115bb0,2025-07-24,2025-08-08,marcosfelipedollis@gmail.com,646546.0
 3,TESTE,a4f22803,2025-07-24,2025-08-08,marcosfelipedollis@gmail.com,123
+4,sicredi,aef423c9,2025-07-24,2025-08-08,marcos_dollis@sicredi.com,123
+5,123 lavô,fcdc5241,2025-07-24,2025-08-08,marcosfelipedollis@gmail.com,12345
+6,123 lavô,78337909,2025-07-24,2025-08-08,marcosfelipedollis@gmail.com,12345
+7,123 lavô,fe8979f8,2025-07-24,2025-08-08,marcosfelipedollis@gmail.com,12345

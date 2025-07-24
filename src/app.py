@@ -18,7 +18,7 @@ USERS = {
 }
 
 DATABASE_URL = os.getenv("DATABASE_URL")
-USE_DATABASE = False  # Altere para True para usar o banco PostgreSQL
+USE_DATABASE = True  # Altere para True para usar o banco PostgreSQL
 
 if USE_DATABASE:
     from utils.db_manager import load_transactions, save_transaction
@@ -262,6 +262,13 @@ def main_app():
             st.subheader("Média Diária dos Valores")
             st.metric(label="Média Diária", value=f"R$ {media_diaria:.2f}")
 
+            # Média diária apenas dos valores de entrada
+            df_entradas = df_filtrado[df_filtrado['tipo'] == 'Entrada']
+            df_soma_dia_entradas = df_entradas.groupby('data')['valor'].sum().reset_index()
+            media_diaria_entradas = df_soma_dia_entradas['valor'].mean()
+            st.subheader("Média Diária das Entradas")
+            st.metric(label="Média Diária de Entradas", value=f"R$ {media_diaria_entradas:.2f}")
+
             # Descobre o mês e ano do filtro final
             if not df_soma_dia.empty:
                 ultimo_dia = pd.to_datetime(df_soma_dia['data']).max()
@@ -284,22 +291,22 @@ def main_app():
         # --- Projeção Mensal ---
         df_filtrado['mes'] = pd.to_datetime(df_filtrado['data']).dt.to_period('M').astype(str)
 
-        # Soma dos valores reais faturados por mês
-        faturado_mes = df_filtrado.groupby('mes')['valor'].sum().reset_index(name='Faturado')
+        # Soma dos valores reais faturados por mês (apenas entradas)
+        faturado_mes = df_filtrado[df_filtrado['tipo'] == 'Entrada'].groupby('mes')['valor'].sum().reset_index(name='Faturado')
 
-        # Média diária por mês
-        df_dia_mes = df_filtrado.groupby(['mes', 'data'])['valor'].sum().reset_index()
-        media_diaria_mes = df_dia_mes.groupby('mes')['valor'].mean().reset_index(name='Média Diária')
+        # Média diária por mês (apenas entradas)
+        df_dia_mes_entradas = df_filtrado[df_filtrado['tipo'] == 'Entrada'].groupby(['mes', 'data'])['valor'].sum().reset_index()
+        media_diaria_mes_entradas = df_dia_mes_entradas.groupby('mes')['valor'].mean().reset_index(name='Média Diária Entradas')
 
         # Junta as tabelas
-        tabela_proj = pd.merge(media_diaria_mes, faturado_mes, on='mes', how='left')
+        tabela_proj = pd.merge(media_diaria_mes_entradas, faturado_mes, on='mes', how='left')
 
         # Dias no mês e projeção
         tabela_proj['Dias no Mês'] = tabela_proj['mes'].apply(lambda x: calendar.monthrange(int(x[:4]), int(x[5:]))[1])
-        tabela_proj['Projeção Mensal'] = tabela_proj['Média Diária'] * tabela_proj['Dias no Mês']
+        tabela_proj['Projeção Mensal'] = tabela_proj['Média Diária Entradas'] * tabela_proj['Dias no Mês']
 
-        st.subheader("Projeção de Faturamento Mensal")
-        st.dataframe(tabela_proj[['mes', 'Média Diária', 'Dias no Mês', 'Projeção Mensal', 'Faturado']])
+        st.subheader("Projeção de Faturamento Mensal (Entradas)")
+        st.dataframe(tabela_proj[['mes', 'Média Diária Entradas', 'Dias no Mês', 'Projeção Mensal', 'Faturado']])
 
     # Supondo que você já tem saldo, entradas, despesas, dias_entrada, dias_mes
 

@@ -1,39 +1,59 @@
+import psycopg2
 import pandas as pd
-import os
 from datetime import datetime, timedelta
 import uuid
+import os
+from dotenv import load_dotenv
 
-CSV_PATH = "empresas.csv"
+load_dotenv()
+
+USER = os.getenv("user")
+PASSWORD = os.getenv("password")
+HOST = os.getenv("host")
+PORT = os.getenv("port")
+DBNAME = os.getenv("dbname")
+
+def get_connection():
+    return psycopg2.connect(
+        user=USER,
+        password=PASSWORD,
+        host=HOST,
+        port=PORT,
+        dbname=DBNAME
+    )
 
 def load_empresas():
-    if os.path.exists(CSV_PATH):
-        return pd.read_csv(CSV_PATH, dtype=str)
-    else:
-        return pd.DataFrame(columns=["id", "nome", "email", "senha", "chave", "data_cadastro", "trial_expira_em"])
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM empresas", conn)
+    conn.close()
+    return df
 
 def save_empresa(nome, email, senha):
-    df = load_empresas()
     data_cadastro = datetime.today().date()
     trial_expira_em = data_cadastro + timedelta(days=15)
-    chave = str(uuid.uuid4())[:8]  # Chave gerada automaticamente
-    nova_empresa = {
-        "id": len(df) + 1,
-        "nome": nome,
-        "email": email,
-        "senha": senha,
-        "chave": chave,
-        "data_cadastro": data_cadastro.strftime("%Y-%m-%d"),
-        "trial_expira_em": trial_expira_em.strftime("%Y-%m-%d")
-    }
-    df = pd.concat([df, pd.DataFrame([nova_empresa])], ignore_index=True)
-    df.to_csv(CSV_PATH, index=False)
+    chave = str(uuid.uuid4())[:8]
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO empresas (nome, email, senha, chave, data_cadastro, trial_expira_em) VALUES (%s, %s, %s, %s, %s, %s)",
+        (nome, email, senha, chave, data_cadastro, trial_expira_em)
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
     return chave
 
 def autentica_empresa(email, senha):
-    df = load_empresas()
-    email = str(email).strip()
-    senha = str(senha).strip()
-    empresa = df[(df['email'] == email) & (df['senha'] == senha)]
-    if not empresa.empty:
-        return empresa.iloc[0].to_dict()
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT * FROM empresas WHERE email = %s AND senha = %s",
+        (str(email).strip(), str(senha).strip())
+    )
+    empresa = cur.fetchone()
+    columns = [desc[0] for desc in cur.description]
+    cur.close()
+    conn.close()
+    if empresa:
+        return dict(zip(columns, empresa))
     return None

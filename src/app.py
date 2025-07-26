@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import calendar
-import plotly.graph_objects as go
 from components.form import create_transaction_form
 from components.transactions_table import display_transactions_table
 from components.daily_totals_table import display_daily_totals_table
@@ -70,49 +69,79 @@ def fluxo_caixa():
                 descricao = st.text_input("Descrição", value=row['descricao'])
                 submitted = st.form_submit_button("Salvar edição")
                 if submitted:
-                    df.at[idx[0], 'tipo'] = tipo
-                    df.at[idx[0], 'data'] = data.strftime("%Y-%m-%d")
-                    df.at[idx[0], 'valor'] = valor
-                    df.at[idx[0], 'descricao'] = descricao
-                    save_transactions(df)
-                    st.session_state.transactions = load_transactions()
-                    st.session_state.edit_id = None
-                    st.success("Transação editada!")
-                    st.rerun()
+                    # Ajusta o sinal do valor conforme o tipo
+                    if tipo == "Saída":
+                        valor = -abs(valor)
+                    else:
+                        valor = abs(valor)
+                    if USE_DATABASE:
+                        from utils.db_manager import update_transaction
+                        update_transaction(
+                            row['id'],
+                            tipo,
+                            data.strftime("%Y-%m-%d"),
+                            valor,
+                            descricao
+                        )
+                        st.session_state.transactions = load_transactions()
+                        st.session_state.edit_id = None
+                        st.success("Transação editada!")
+                        st.rerun()
+                    else:
+                        df.at[idx[0], 'tipo'] = tipo
+                        df.at[idx[0], 'data'] = data.strftime("%Y-%m-%d")
+                        df.at[idx[0], 'valor'] = valor
+                        df.at[idx[0], 'descricao'] = descricao
+                        save_transactions(df)
+                        st.session_state.transactions = load_transactions()
+                        st.session_state.edit_id = None
+                        st.success("Transação editada!")
+                        st.rerun()
             st.button("Cancelar edição", on_click=lambda: st.session_state.update({'edit_id': None}))
         else:
             st.session_state.edit_id = None
 
     # Formulário de cadastro
-    transaction = create_transaction_form()
-    if transaction and isinstance(transaction, dict):
-        # Adiciona a chave única da empresa logada
-        transaction["empresa"] = chave_empresa = st.session_state.chave_empresa
-        # Se for saída, salva o valor como negativo
-        if transaction["tipo"] == "Saída":
-            transaction["valor"] = -abs(transaction["valor"])
-        if USE_DATABASE:
-            save_transaction(transaction)
-            st.session_state.transactions = load_transactions()
-        else:
-            df = st.session_state.transactions
-            df = pd.concat([df, pd.DataFrame([transaction])], ignore_index=True)
-            save_transactions(df)
-            st.session_state.transactions = load_transactions()
-        st.success("Transação salva com sucesso!")
-        st.rerun()
+    # Só mostra o formulário de cadastro se NÃO estiver editando
+    if 'edit_id' not in st.session_state or st.session_state.edit_id is None:
+        transaction = create_transaction_form()
+        if transaction and isinstance(transaction, dict):
+            # Adiciona a chave única da empresa logada
+            transaction["empresa"] = st.session_state.chave_empresa
+            # Se for saída, salva o valor como negativo
+            if transaction["tipo"] == "Saída":
+                transaction["valor"] = -abs(transaction["valor"])
+            if USE_DATABASE:
+                save_transaction(transaction)
+                st.session_state.transactions = load_transactions()
+            else:
+                df = st.session_state.transactions
+                df = pd.concat([df, pd.DataFrame([transaction])], ignore_index=True)
+                save_transactions(df)
+                st.session_state.transactions = load_transactions()
+            # NÃO modifique st.session_state.valor_novo aqui!
+            st.success("Transação salva com sucesso!")
+            st.rerun()
 
     # Tabela com botões de edição
     def start_edit_callback(row_id):
         st.session_state.edit_id = row_id
+        st.rerun()
 
     def delete_transaction_callback(row_id):
-        df = st.session_state.transactions
-        df = df[df['id'] != row_id].reset_index(drop=True)
-        save_transactions(df)
-        st.session_state.transactions = load_transactions()
-        st.success("Transação excluída!")
-        st.rerun()
+        if USE_DATABASE:
+            from utils.db_manager import delete_transaction
+            delete_transaction(row_id)
+            st.session_state.transactions = load_transactions()
+            st.success("Transação excluída!")
+            st.rerun()
+        else:
+            df = st.session_state.transactions
+            df = df[df['id'] != row_id].reset_index(drop=True)
+            save_transactions(df)
+            st.session_state.transactions = load_transactions()
+            st.success("Transação excluída!")
+            st.rerun()
 
     if not df_empresa.empty:
         display_transactions_table(df_empresa, start_edit_callback, delete_transaction_callback)
@@ -154,49 +183,79 @@ def main_app():
                     descricao = st.text_input("Descrição", value=row['descricao'])
                     submitted = st.form_submit_button("Salvar edição")
                     if submitted:
-                        df.at[idx[0], 'tipo'] = tipo
-                        df.at[idx[0], 'data'] = data.strftime("%Y-%m-%d")
-                        df.at[idx[0], 'valor'] = valor
-                        df.at[idx[0], 'descricao'] = descricao
-                        save_transactions(df)
-                        st.session_state.transactions = load_transactions()
-                        st.session_state.edit_id = None
-                        st.success("Transação editada!")
-                        st.rerun()
+                        # Ajusta o sinal do valor conforme o tipo
+                        if tipo == "Saída":
+                            valor = -abs(valor)
+                        else:
+                            valor = abs(valor)
+                        if USE_DATABASE:
+                            from utils.db_manager import update_transaction
+                            update_transaction(
+                                row['id'],
+                                tipo,
+                                data.strftime("%Y-%m-%d"),
+                                valor,
+                                descricao
+                            )
+                            st.session_state.transactions = load_transactions()
+                            st.session_state.edit_id = None
+                            st.success("Transação editada!")
+                            st.rerun()
+                        else:
+                            df.at[idx[0], 'tipo'] = tipo
+                            df.at[idx[0], 'data'] = data.strftime("%Y-%m-%d")
+                            df.at[idx[0], 'valor'] = valor
+                            df.at[idx[0], 'descricao'] = descricao
+                            save_transactions(df)
+                            st.session_state.transactions = load_transactions()
+                            st.session_state.edit_id = None
+                            st.success("Transação editada!")
+                            st.rerun()
                 st.button("Cancelar edição", on_click=lambda: st.session_state.update({'edit_id': None}))
             else:
                 st.session_state.edit_id = None
 
         # Formulário de cadastro
-        transaction = create_transaction_form()
-        if transaction and isinstance(transaction, dict):
-            # Adiciona a chave única da empresa logada
-            transaction["empresa"] = chave_empresa
-            # Se for saída, salva o valor como negativo
-            if transaction["tipo"] == "Saída":
-                transaction["valor"] = -abs(transaction["valor"])
-            if USE_DATABASE:
-                save_transaction(transaction)
-                st.session_state.transactions = load_transactions()
-            else:
-                df = st.session_state.transactions
-                df = pd.concat([df, pd.DataFrame([transaction])], ignore_index=True)
-                save_transactions(df)
-                st.session_state.transactions = load_transactions()
-            st.success("Transação salva com sucesso!")
-            st.rerun()
+        # Só mostra o formulário de cadastro se NÃO estiver editando
+        if 'edit_id' not in st.session_state or st.session_state.edit_id is None:
+            transaction = create_transaction_form()
+            if transaction and isinstance(transaction, dict):
+                # Adiciona a chave única da empresa logada
+                transaction["empresa"] = chave_empresa
+                # Se for saída, salva o valor como negativo
+                if transaction["tipo"] == "Saída":
+                    transaction["valor"] = -abs(transaction["valor"])
+                if USE_DATABASE:
+                    save_transaction(transaction)
+                    st.session_state.transactions = load_transactions()
+                else:
+                    df = st.session_state.transactions
+                    df = pd.concat([df, pd.DataFrame([transaction])], ignore_index=True)
+                    save_transactions(df)
+                    st.session_state.transactions = load_transactions()
+                # NÃO modifique st.session_state.valor_novo aqui!
+                st.success("Transação salva com sucesso!")
+                st.rerun()
 
         # Tabela com botões de edição
         def start_edit_callback(row_id):
             st.session_state.edit_id = row_id
+            st.rerun()
 
         def delete_transaction_callback(row_id):
-            df = st.session_state.transactions
-            df = df[df['id'] != row_id].reset_index(drop=True)
-            save_transactions(df)
-            st.session_state.transactions = load_transactions()
-            st.success("Transação excluída!")
-            st.rerun()
+            if USE_DATABASE:
+                from utils.db_manager import delete_transaction
+                delete_transaction(row_id)
+                st.session_state.transactions = load_transactions()
+                st.success("Transação excluída!")
+                st.rerun()
+            else:
+                df = st.session_state.transactions
+                df = df[df['id'] != row_id].reset_index(drop=True)
+                save_transactions(df)
+                st.session_state.transactions = load_transactions()
+                st.success("Transação excluída!")
+                st.rerun()
 
         if not df_empresa.empty:
             display_transactions_table(df_empresa, start_edit_callback, delete_transaction_callback)
@@ -257,11 +316,6 @@ def main_app():
 
             st.dataframe(df_soma_mes_tipo[['Entrada', 'Saída', 'Saldo', 'Margem Líquida (%)']])
 
-            # Média diária dos valores do filtro
-            media_diaria = df_soma_dia['valor'].mean()
-            st.subheader("Média Diária dos Valores")
-            st.metric(label="Média Diária", value=f"R$ {media_diaria:.2f}")
-
             # Média diária apenas dos valores de entrada
             df_entradas = df_filtrado[df_filtrado['tipo'] == 'Entrada']
             df_soma_dia_entradas = df_entradas.groupby('data')['valor'].sum().reset_index()
@@ -270,12 +324,12 @@ def main_app():
             st.metric(label="Média Diária de Entradas", value=f"R$ {media_diaria_entradas:.2f}")
 
             # Descobre o mês e ano do filtro final
-            if not df_soma_dia.empty:
-                ultimo_dia = pd.to_datetime(df_soma_dia['data']).max()
+            if not df_soma_dia_entradas.empty:
+                ultimo_dia = pd.to_datetime(df_soma_dia_entradas['data']).max()
                 mes = ultimo_dia.month
                 ano = ultimo_dia.year
                 dias_projetados = calendar.monthrange(ano, mes)[1]
-                faturamento_projetado = media_diaria * dias_projetados
+                faturamento_projetado = media_diaria_entradas * dias_projetados
                 st.subheader(f"Projeção de Faturamento para {dias_projetados} dias ({mes:02d}/{ano})")
                 st.metric(label="Faturamento Projetado", value=f"R$ {faturamento_projetado:.2f}")
         else:

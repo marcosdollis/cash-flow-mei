@@ -62,6 +62,17 @@ def save_empresa(empresa):
     cur.close()
     conn.close()
 
+def update_transaction(row_id, tipo, data, valor, descricao):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute(
+        "UPDATE transactions SET tipo=%s, data=%s, valor=%s, descricao=%s WHERE id=%s",
+        (tipo, data, valor, descricao, int(row_id))  # Conversão aqui
+    )
+    conn.commit()
+    cur.close()
+    conn.close()
+
 # Testando a conexão
 try:
     conn = get_connection()

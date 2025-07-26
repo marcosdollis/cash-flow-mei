@@ -2,28 +2,24 @@ import streamlit as st
 from datetime import datetime
 import uuid
 
-def transaction_form(save_transaction):
-    st.header("Registro de Transações")
-    
-    transaction_type = st.selectbox("Tipo de Transação", ["entrada", "saída"], index=0)
-    transaction_date = st.date_input("Data", datetime.today())
-    value = st.number_input("Valor", min_value=0.0, format="%.2f")
-    description = st.text_input("Descrição")
-    
-    if st.button("Salvar"):
-        transaction = {
-            "type": transaction_type,
-            "date": transaction_date,
-            "value": value,
-            "description": description
-        }
-        save_transaction(transaction)
-
 def create_transaction_form():
+    # Reset valor_novo se necessário
+    if st.session_state.get("reset_valor_novo", False):
+        st.session_state.valor_novo = 0.0
+        st.session_state.reset_valor_novo = False
+
+    if "valor_novo" not in st.session_state:
+        st.session_state.valor_novo = 0.0
+
     with st.form("transaction_form"):
         tipo = st.radio("Tipo", ["Entrada", "Saída"], index=0)
         data = st.date_input("Data", value=datetime.today())
-        valor = st.number_input("Valor", min_value=None, format="%.2f")
+        valor = st.number_input(
+            "Valor",
+            min_value=0.0,
+            format="%.2f",
+            key="valor_novo"
+        )
         descricao = st.text_input("Descrição")
         submitted = st.form_submit_button("Salvar")
         if submitted:
@@ -34,8 +30,8 @@ def create_transaction_form():
                 "valor": valor,
                 "descricao": descricao
             }
-            # Ajuste o valor para transações de saída
             if transaction["tipo"] == "Saída":
                 transaction["valor"] = -abs(transaction["valor"])
+            st.session_state.reset_valor_novo = True  # Sinaliza para resetar na próxima execução
             return transaction
     return None

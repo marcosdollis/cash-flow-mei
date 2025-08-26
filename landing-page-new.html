@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rede de Mídia Digital Expansiva</title>
+    <link rel="stylesheet" href="styles-new.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Hero Section -->
+    <header class="hero gradient-bg">
+        <nav class="navbar">
+            <div class="logo">MediaExpand</div>
+            <div class="nav-links">
+                <a href="#como-funciona">Como Funciona</a>
+                <a href="#resultados">Resultados</a>
+                <a href="#depoimentos">Clientes</a>
+                <a href="#contato" class="btn-contact">Contato</a>
+            </div>
+        </nav>
+        
+        <div class="hero-content">
+            <h1 class="fade-in">Sua marca em <span class="highlight">expansão contínua</span></h1>
+            <p class="subtitle fade-in delay-1">Publicidade exclusiva que cresce junto com nossa rede</p>
+            <button class="cta-button pulse">Garanta sua exclusividade</button>
+        </div>
+        
+        <div class="scroll-indicator">
+            <div class="mouse"></div>
+            <p>Descubra como</p>
+        </div>
+        
+        <!-- Elementos decorativos para design inovador -->
+        <div class="shapes">
+            <div class="shape shape1"></div>
+            <div class="shape shape2"></div>
+            <div class="shape shape3"></div>
+        </div>
+    </header>
+
+    <!-- Animação de Crescimento -->
+    <section class="growth-section">
+        <h2>Uma rede em <span class="highlight">constante expansão</span></h2>
+        
+        <div class="map-container">
+            <div class="city-map">
+                <!-- Pontos serão adicionados com JavaScript -->
+                <div class="point active" style="top: 30%; left: 40%;">
+                    <div class="pulse-circle"></div>
+                    <div class="location-info">Seu estabelecimento</div>
+                </div>
+                <div class="point future" style="top: 45%; left: 60%;">
+                    <div class="pulse-circle"></div>
+                    <div class="location-info">Padaria Central</div>
+                </div>
+                <div class="point future" style="top: 25%; left: 65%;">
+                    <div class="pulse-circle"></div>
+                    <div class="location-info">Posto Avenida</div>
+                </div>
+                <!-- Mais pontos aqui -->
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <h3 class="counter">500</h3>
+                <p>Visualizações iniciais/mês</p>
+            </div>
+            <div class="stat-box">
+                <h3><span class="counter">20</span>k+</h3>
+                <p>Alcance no Instagram</p>
+            </div>
+            <div class="stat-box highlight-box">
+                <h3><span class="counter">2500</span>+</h3>
+                <p>Visualizações com rede completa</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Como Funciona -->
+    <section id="como-funciona" class="how-it-works">
+        <h2>Como <span class="highlight">Funciona</span></h2>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Início</h3>
+                    <p>Sua marca na TV principal + Instagram com alcance de 20mil pessoas</p>
+                    <div class="image-placeholder">
+                        <img src="img/tv-mockup1.jpg" alt="TV Principal com publicidade">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Expansão</h3>
+                    <p>Com novos anunciantes, expandimos para mais locais - mesmo valor para você</p>
+                    <div class="image-placeholder">
+                        <img src="img/tv-mockup2.jpg" alt="Expansão para novos pontos">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-icon">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <div class="timeline-content">
+                    <h3>Rede Completa</h3>
+                    <p>Sua marca em múltiplos pontos da cidade, alcançando públicos diversos</p>
+                    <div class="image-placeholder">
+                        <img src="img/tv-mockup3.jpg" alt="Rede completa de displays">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculadora de ROI -->
+    <section id="resultados" class="roi-calculator">
+        <h2>Seu investimento com <span class="highlight">retorno crescente</span></h2>
+        
+        <div class="calculator-container">
+            <div class="calculator-info">
+                <h3>R$ 250/mês</h3>
+                <p>Investimento fixo</p>
+                
+                <div class="slider-container">
+                    <p>Simule o crescimento da rede:</p>
+                    <input type="range" min="1" max="10" value="1" class="slider" id="locationSlider">
+                    <div class="slider-labels">
+                        <span>1 local</span>
+                        <span>5 locais</span>
+                        <span>10 locais</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-container">
+                <div class="result-box">
+                    <h4>Alcance estimado</h4>
+                    <p class="result-value" id="reachValue">500</p>
+                    <p>pessoas/mês</p>
+                </div>
+                
+                <div class="result-box highlight-box">
+                    <h4>Custo por visualização</h4>
+                    <p class="result-value" id="costPerView">R$ 0,50</p>
+                    <p>por pessoa</p>
+                </div>
+                
+                <div class="value-proposition">
+                    <p>Quanto mais crescemos, <strong>maior seu retorno</strong> pelo mesmo investimento!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeria de Depoimentos -->
+    <section id="depoimentos" class="testimonials">
+        <h2>O que nossos <span class="highlight">parceiros</span> dizem</h2>
+        
+        <div class="testimonial-container">
+            <div class="testimonial-card">
+                <div class="testimonial-image">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Cliente 1">
+                </div>
+                <div class="testimonial-content">
+                    <p>"Desde que começamos a anunciar, notamos um aumento de 30% em novos clientes que mencionam ter nos visto nas TVs."</p>
+                    <h4>João Silva</h4>
+                    <p class="company">Academia Fitness</p>
+                </div>
+            </div>
+            
+            <div class="testimonial-card">
+                <div class="testimonial-image">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Cliente 2">
+                </div>
+                <div class="testimonial-content">
+                    <p>"A exclusividade no segmento foi fundamental. Não dividimos atenção com concorrentes e isso valorizou nossa marca."</p>
+                    <h4>Maria Oliveira</h4>
+                    <p class="company">Café Gourmet</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Exclusividade Garantida -->
+    <section class="exclusivity">
+        <h2>Garanta sua <span class="highlight">exclusividade</span></h2>
+        
+        <div class="categories-container">
+            <div class="category-card available">
+                <div class="category-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <h3>Restaurante</h3>
+                <div class="status">Disponível</div>
+            </div>
+            
+            <div class="category-card reserved">
+                <div class="category-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <h3>Academia</h3>
+                <div class="status">Reservado</div>
+            </div>
+            
+            <div class="category-card available">
+                <div class="category-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <h3>Moda</h3>
+                <div class="status">Disponível</div>
+            </div>
+            
+            <div class="category-card available">
+                <div class="category-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3>Auto Center</h3>
+                <div class="status">Disponível</div>
+            </div>
+        </div>
+        
+        <div class="countdown-container">
+            <p>Restam apenas</p>
+            <div class="countdown">7</div>
+            <p>segmentos exclusivos</p>
+        </div>
+    </section>
+
+    <!-- Formulário de Contato -->
+    <section id="contato" class="contact-section">
+        <h2>Quer fazer parte da <span class="highlight">rede</span>?</h2>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <p>Entre em contato agora mesmo e garanta a exclusividade do seu segmento antes que outro anunciante o faça.</p>
+                
+                <div class="contact-method">
+                    <i class="fas fa-phone"></i>
+                    <p>(XX) XXXXX-XXXX</p>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fas fa-envelope"></i>
+                    <p>contato@suaempresa.com</p>
+                </div>
+                
+                <div class="social-media">
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+            
+            <form class="contact-form">
+                <div class="form-group">
+                    <input type="text" id="name" required>
+                    <label for="name">Nome</label>
+                </div>
+                
+                <div class="form-group">
+                    <input type="text" id="business" required>
+                    <label for="business">Empresa</label>
+                </div>
+                
+                <div class="form-group">
+                    <input type="tel" id="phone" required>
+                    <label for="phone">Telefone</label>
+                </div>
+                
+                <div class="form-group">
+                    <input type="email" id="email" required>
+                    <label for="email">E-mail</label>
+                </div>
+                
+                <div class="form-group">
+                    <select id="segment" required>
+                        <option value="" disabled selected>Selecione seu segmento</option>
+                        <option value="restaurante">Restaurante</option>
+                        <option value="moda">Moda</option>
+                        <option value="auto">Auto Center</option>
+                        <option value="outro">Outro</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <textarea id="message" required></textarea>
+                    <label for="message">Mensagem</label>
+                </div>
+                
+                <button type="submit" class="submit-button">Quero fazer parte</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="logo">MediaExpand</div>
+            <p>&copy; 2025 Sua Empresa. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script-new.js"></script>
+</body>
+</html>

@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         locationSlider.addEventListener('input', function() {
             const locations = parseInt(this.value);
             // Crescimento exponencial suave
-            const reach = Math.round(500 * Math.pow(1.15, locations - 1));
+            const reach = Math.round(500 * Math.pow(15, locations - 1));
             const cost = (250 / reach).toFixed(2);
             
             reachValue.textContent = reach;

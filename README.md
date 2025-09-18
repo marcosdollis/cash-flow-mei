@@ -53,5 +53,28 @@ mei-cashflow-app
 - Check the daily totals table for a summary of your transactions.
 
 ## Contributing
+✅ Por que anunciar com você faz sentido (e pode ser melhor que redes sociais em certos casos):
+1. Atenção garantida em locais físicos
+Em redes sociais, o conteúdo disputa atenção com centenas de outros posts.
+Nas TVs em locais de espera, você controla o ambiente e o foco está na tela. Isso é raro e valioso.
+2. Menor dispersão e mais retenção
+O Instagram tem rolagem infinita e atenção fragmentada.
+Em locais como lavanderias e consultórios, o tempo de exposição à mensagem é maior, o que aumenta a retenção.
+3. Público local e qualificado
+Redes sociais têm alcance amplo, mas muitas vezes disperso.
+Você oferece acesso direto a pessoas que estão fisicamente próximas do anunciante, o que é ideal para negócios locais.
+4. Custo menor por impacto real
+Em redes sociais, o custo por clique ou impressão pode ser alto — e nem sempre gera conversão.
+Com você, o anunciante paga por atenção real e recorrente, com menor dispersão e maior chance de retorno.
+5. Integração física + digital
+Você não está competindo com redes sociais — está complementando.
+O ideal é usar ambos os canais, mas você oferece algo que as redes sociais não conseguem: presença física e atenção cativa.
+❗ Quando redes sociais podem ser mais vantajosas:
+Se o público-alvo é jovem e altamente digital, e o produto é online ou escalável, redes sociais podem ter melhor custo-benefício.
+Se a empresa busca alcance nacional ou internacional, o seu canal local pode ser limitado.
+🎯 Conclusão lógica
+Se eu fosse uma empresa local, com foco em serviços ou produtos físicos, e quisesse atenção real, recorrente e segmentada, eu anunciaria com você. E complementaria com redes sociais para reforçar a marca.
+
+Você oferece atenção qualificada, ambiente controlado, e exclusividade por segmento — três coisas que as redes sociais não garantem.
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.

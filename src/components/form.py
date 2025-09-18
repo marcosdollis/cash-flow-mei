@@ -18,7 +18,7 @@ def create_transaction_form():
             "Valor",
             min_value=0.0,
             format="%.2f",
-            key="valor_novo"
+            key="valor_novo_cadastro"  # <-- chave única para cadastro
         )
         descricao = st.text_input("Descrição")
         submitted = st.form_submit_button("Salvar")

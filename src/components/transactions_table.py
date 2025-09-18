@@ -12,24 +12,43 @@ def display_transactions_table(transactions, start_edit_callback, delete_transac
         st.info("Nenhuma transação cadastrada.")
         return
 
-    # Filtro de intervalo de datas
-    datas_unicas = pd.to_datetime(transactions['data']).dt.date
-    min_date = datas_unicas.min()
-    max_date = datas_unicas.max()
+    datas_validas = pd.to_datetime(transactions['data'], errors='coerce').dropna()
+    if not datas_validas.empty:
+        min_date = datas_validas.min().date()
+        max_date = datas_validas.max().date()
+        # Últimos 7 dias ou todo o range disponível
+        if (max_date - min_date).days >= 6:
+            default_start = max_date - datetime.timedelta(days=6)
+        else:
+            default_start = min_date
+        default_end = max_date
+    else:
+        today = datetime.date.today()
+        min_date = today
+        max_date = today
+        default_start = today
+        default_end = today
 
-    today = datetime.date.today()
-    yesterday = today - datetime.timedelta(days=1)
+    def sanitize_range(start, end, min_date, max_date):
+        if start < min_date:
+            start = min_date
+        if end > max_date:
+            end = max_date
+        if start > end:
+            start = min_date
+            end = max_date
+        return start, end
 
-    # Garante que yesterday está dentro do range de datas disponíveis
-    start_default = yesterday if yesterday >= min_date else min_date
-    end_default = today if today <= max_date else max_date
-
-    start_date, end_date = st.date_input(
-        "Filtrar transações por intervalo de datas",
-        value=(start_default, end_default),
-        min_value=min_date,
-        max_value=max_date
-    )
+    try:
+        start_date, end_date = st.date_input(
+            "Filtrar transações por intervalo de datas",
+            value=(default_start, default_end),
+            min_value=min_date,
+            max_value=max_date
+        )
+        start_date, end_date = sanitize_range(start_date, end_date, min_date, max_date)
+    except Exception:
+        start_date, end_date = default_start, default_end
 
     # Filtra o DataFrame pelo intervalo selecionado
     mask = (pd.to_datetime(transactions['data']).dt.date >= start_date) & \

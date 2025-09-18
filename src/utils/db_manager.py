@@ -73,10 +73,30 @@ def update_transaction(row_id, tipo, data, valor, descricao):
     cur.close()
     conn.close()
 
-# Testando a conexão
-try:
+def save_estoque_item(item):
     conn = get_connection()
-    print("Conexão OK!")
+    cur = conn.cursor()
+    cur.execute(
+        """
+        INSERT INTO estoque (nome, quantidade, preco_custo, preco_loja, markup, margem_lucro, empresa)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """,
+        (
+            item['nome'],
+            item['quantidade'],
+            item['preco_custo'],
+            item['preco_loja'],
+            item['markup'],
+            item['margem_lucro'],
+            item['empresa']  # <-- aqui!
+        )
+    )
+    conn.commit()
+    cur.close()
     conn.close()
-except Exception as e:
-    print(f"Erro na conexão: {e}")
+
+def load_estoque_items(empresa):
+    conn = get_connection()
+    df = pd.read_sql("SELECT * FROM estoque WHERE empresa = %s", conn, params=(empresa,))
+    conn.close()
+    return df

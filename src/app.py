@@ -4,6 +4,7 @@ import calendar
 from components.form import create_transaction_form
 from components.transactions_table import display_transactions_table
 from components.daily_totals_table import display_daily_totals_table
+from components.estoque_form import create_estoque_form
 from utils.data_manager import load_transactions, save_transactions
 from utils.empresa_manager import save_empresa, autentica_empresa
 import os
@@ -65,7 +66,13 @@ def fluxo_caixa():
             with st.form("edit_form"):
                 tipo = st.radio("Tipo", ["Entrada", "Saída"], index=0 if row['tipo'] == "Entrada" else 1)
                 data = st.date_input("Data", value=pd.to_datetime(row['data']))
-                valor = st.number_input("Valor", min_value=None, value=float(row['valor']), format="%.2f")
+                valor = st.number_input(
+                    "Valor",
+                    min_value=None,
+                    value=float(row['valor']),
+                    format="%.2f",
+                    key="valor_novo_edicao"  # <-- chave única para edição
+                )
                 descricao = st.text_input("Descrição", value=row['descricao'])
                 submitted = st.form_submit_button("Salvar edição")
                 if submitted:
@@ -166,7 +173,8 @@ def main_app():
         st.session_state.transactions = load_transactions()
 
     st.sidebar.title("Menu")
-    page = st.sidebar.radio("Ir para:", ["Lançamentos", "Somatório por Dia"])
+    menu = ["Lançamentos", "Somatório por Dia", "Estoque"]
+    page = st.sidebar.selectbox("Menu", menu)
 
     if page == "Lançamentos":
         st.title(f"Controle de Fluxo de Caixa - {st.session_state.empresa}")
@@ -179,7 +187,13 @@ def main_app():
                 with st.form("edit_form"):
                     tipo = st.radio("Tipo", ["Entrada", "Saída"], index=0 if row['tipo'] == "Entrada" else 1)
                     data = st.date_input("Data", value=pd.to_datetime(row['data']))
-                    valor = st.number_input("Valor", min_value=None, value=float(row['valor']), format="%.2f")
+                    valor = st.number_input(
+                        "Valor",
+                        min_value=None,
+                        value=float(row['valor']),
+                        format="%.2f",
+                        key="valor_novo_edicao"  # <-- chave única para edição
+                    )
                     descricao = st.text_input("Descrição", value=row['descricao'])
                     submitted = st.form_submit_button("Salvar edição")
                     if submitted:
@@ -265,14 +279,15 @@ def main_app():
     elif page == "Somatório por Dia":
         st.title(f"Somatório por Dia - {st.session_state.empresa}")
 
-        # Filtro de datas
+        # Filtro de datas: pega todo o intervalo disponível
         datas_validas = pd.to_datetime(df_empresa['data'], errors='coerce').dropna()
         if not datas_validas.empty:
             min_date = datas_validas.min().date()
             max_date = datas_validas.max().date()
         else:
-            min_date = datetime.date.today()
-            max_date = datetime.date.today()
+            today = datetime.date.today()
+            min_date = today
+            max_date = today
 
         start_date, end_date = st.date_input(
             "Filtrar por intervalo de datas",
@@ -281,6 +296,7 @@ def main_app():
             max_value=max_date
         )
 
+        # Agora, use start_date e end_date normalmente
         # Filtra o DataFrame pelo range de datas
         df_filtrado = df_empresa[
             (pd.to_datetime(df_empresa['data']) >= pd.to_datetime(start_date)) &
@@ -362,36 +378,41 @@ def main_app():
         st.subheader("Projeção de Faturamento Mensal (Entradas)")
         st.dataframe(tabela_proj[['mes', 'Média Diária Entradas', 'Dias no Mês', 'Projeção Mensal', 'Faturado']])
 
-    # Supondo que você já tem saldo, entradas, despesas, dias_entrada, dias_mes
+        # Termômetro de lucro
+        saldo = df_empresa['valor'].sum()
+        entradas = df_empresa[df_empresa['tipo'] == 'Entrada']['valor'].sum()
+        despesas = df_empresa[df_empresa['tipo'] == 'Saída']['valor'].sum()
+        dias_entrada = (df_empresa[df_empresa['tipo'] == 'Entrada']['data'].nunique())
+        dias_mes = (df_empresa['data'].nunique())
 
-    # Termômetro de lucro
-    saldo = df_empresa['valor'].sum()
-    entradas = df_empresa[df_empresa['tipo'] == 'Entrada']['valor'].sum()
-    despesas = df_empresa[df_empresa['tipo'] == 'Saída']['valor'].sum()
-    dias_entrada = (df_empresa[df_empresa['tipo'] == 'Entrada']['data'].nunique())
-    dias_mes = (df_empresa['data'].nunique())
+        if saldo > 0:
+            st.success("Saúde financeira: Saudável 🟢")
+        else:
+            st.error("Saúde financeira: Alerta 🔴")
 
-    if saldo > 0:
-        st.success("Saúde financeira: Saudável 🟢")
-    else:
-        st.error("Saúde financeira: Alerta 🔴")
+        # Constância de entradas
+        percentual_entrada = (dias_entrada / dias_mes) * 100
+        if percentual_entrada >= 80:
+            st.success(f"Constância de entradas: {percentual_entrada:.1f}% (Constante)")
+        elif percentual_entrada >= 50:
+            st.warning(f"Constância de entradas: {percentual_entrada:.1f}% (Regular)")
+        else:
+            st.error(f"Constância de entradas: {percentual_entrada:.1f}% (Baixa)")
 
-    # Constância de entradas
-    percentual_entrada = (dias_entrada / dias_mes) * 100
-    if percentual_entrada >= 80:
-        st.success(f"Constância de entradas: {percentual_entrada:.1f}% (Constante)")
-    elif percentual_entrada >= 50:
-        st.warning(f"Constância de entradas: {percentual_entrada:.1f}% (Regular)")
-    else:
-        st.error(f"Constância de entradas: {percentual_entrada:.1f}% (Baixa)")
+        # Equilíbrio receitas/despesas
+        receitas = df_empresa[df_empresa['tipo'] == 'Entrada']['valor'].sum()
+        despesas = df_empresa[df_empresa['tipo'] == 'Saída']['valor'].sum()
+        if receitas >= abs(despesas):
+            st.success("Equilíbrio: Receitas cobrem despesas 🟢")
+        else:
+            st.error("Equilíbrio: Despesas maiores que receitas 🔴")
 
-    # Equilíbrio receitas/despesas
-    receitas = df_empresa[df_empresa['tipo'] == 'Entrada']['valor'].sum()
-    despesas = df_empresa[df_empresa['tipo'] == 'Saída']['valor'].sum()
-    if receitas >= abs(despesas):
-        st.success("Equilíbrio: Receitas cobrem despesas 🟢")
-    else:
-        st.error("Equilíbrio: Despesas maiores que receitas 🔴")
+
+    elif page == "Estoque":
+        st.title("Cadastro de Itens do Estoque")
+        create_estoque_form()
+        
+    
 
     if st.sidebar.button("Sair"):
         st.session_state.logged_in = False
